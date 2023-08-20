@@ -1,0 +1,201 @@
+//왼쪽 초음파 센서
+int L_trig = 46;
+int L_echo = 48;
+//오른쪽 초음파 센서
+int R_trig = 42;
+int R_echo = 44;
+//왼쪽 바퀴
+int L_PWM = 3;
+int L_F = 32;
+int L_B = 34;
+//오른쪽 바퀴
+int R_PWM = 4;
+int R_F = 36;
+int R_B = 38;
+// //바퀴 전력 공급 
+// int power_PWM= 2;
+// int pow1 = 22;
+// int pow2 = 24;
+//흡입모터 전력 공급
+int m_PWM = 7;
+int m1 = 52;
+int m2 = 50;
+//변수를 설정합니다. 
+long dur1, dis1;
+long dur2, dis2;
+
+void setup() {
+  pinMode(L_trig, OUTPUT);  
+  pinMode(L_echo, INPUT); 
+
+  pinMode(R_trig, OUTPUT); 
+  pinMode(R_echo, INPUT);
+  
+  pinMode(L_PWM, OUTPUT);
+  pinMode(L_F, OUTPUT);
+  pinMode(L_B, OUTPUT);
+
+  pinMode(R_PWM, OUTPUT);
+  pinMode(R_F, OUTPUT);
+  pinMode(R_B, OUTPUT); 
+  
+  // pinMode(power_PWM, OUTPUT);
+  // pinMode(pow1, OUTPUT);
+  // pinMode(pow2, OUTPUT);
+
+  pinMode(m_PWM, OUTPUT);
+  pinMode(m1, OUTPUT);
+  pinMode(m2, OUTPUT);
+  
+  Serial.begin(9600); 
+}
+
+void loop() {
+  //바퀴 전력 공급량 조절
+  digitalWrite(m1,HIGH);
+  digitalWrite(m2,LOW);
+  analogWrite(m_PWM,400);
+  
+  // //흡입 모터 전력 공급량 조절
+  // digitalWrite(pow1,HIGH);
+  // digitalWrite(pow2,LOW);
+  // analogWrite(power_PWM,400);
+  
+  //초음파 센서 거리 측정
+  digitalWrite(L_trig, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(L_trig, LOW);
+  dur1 = pulseIn(L_echo, HIGH);
+  dis1= dur1 * 170/1000;
+  digitalWrite(R_trig, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(R_trig, LOW);
+  dur2 = pulseIn(R_echo, HIGH);
+  dis2= dur2 * 170/1000;
+
+  //직진
+  if (dis1 <= 200 && dis2 <= 200) 
+  {
+    //값 출력
+    Serial.println("Go Forward");
+    Serial.print("Left sensor: ");
+    Serial.println(dis1);
+    Serial.print("Right sensor: ");
+    Serial.println(dis2);
+    //직진
+    digitalWrite(L_F, HIGH);
+    digitalWrite(L_B, LOW);
+    analogWrite(L_PWM, 80);
+    digitalWrite(R_F, HIGH);
+    digitalWrite(R_B, LOW);
+    analogWrite(R_PWM, 80);
+  }
+  //우회전
+  else if (dis1 >= 200 && dis2 <= 200)
+  {
+    //정지
+    analogWrite(L_PWM, 0);
+    analogWrite(R_PWM, 0);
+    delay(500);
+    //값 출력
+    Serial.println("Go Right");
+    Serial.print("Left sensor: ");
+    Serial.println(dis1);
+    Serial.print("Right sensor: ");
+    Serial.println(dis2);
+    // 후진
+    digitalWrite(L_F, LOW);
+    digitalWrite(L_B, HIGH);
+    analogWrite(L_PWM, 100);
+    digitalWrite(R_F, LOW);
+    digitalWrite(R_B, HIGH);
+    analogWrite(R_PWM, 100);
+    delay(700);
+    //정지
+    analogWrite(L_PWM, 0);
+    analogWrite(R_PWM, 0);
+    delay(500);
+    //좌회전
+    digitalWrite(L_F, LOW);
+    digitalWrite(L_B, HIGH);
+    analogWrite(L_PWM, 100);
+    digitalWrite(R_F, HIGH);
+    digitalWrite(R_B, LOW);
+    analogWrite(R_PWM, 100);
+    delay(800);
+   
+  }
+  //좌회전
+  else if (dis1 <= 200 && dis2 >= 200)
+  {
+    //정지
+    analogWrite(L_PWM, 0);
+    analogWrite(R_PWM, 0);
+    delay(500);
+    //값 출력
+    Serial.println("Go Left");
+    Serial.print("Left sensor: ");
+    Serial.println(dis1);
+    Serial.print("Right sensor: ");
+    Serial.println(dis2);
+    //후진
+    digitalWrite(L_F, LOW);
+    digitalWrite(L_B, HIGH);
+    analogWrite(L_PWM, 100);
+    digitalWrite(R_F, LOW);
+    digitalWrite(R_B, HIGH);
+    analogWrite(R_PWM, 100);
+    delay(700);
+    //정지
+    analogWrite(L_PWM, 0);
+    analogWrite(R_PWM, 0);
+    delay(500);
+    //우회전
+    digitalWrite(L_F, HIGH);
+    digitalWrite(L_B, LOW);
+    analogWrite(L_PWM, 100);
+    digitalWrite(R_F, LOW);
+    digitalWrite(R_B, HIGH);
+    analogWrite(R_PWM, 100);
+    delay(800);
+  }
+  //후진
+  else if (dis1 >= 200 && dis2 >= 200)
+  {
+    //정지
+    analogWrite(L_PWM, 0);
+    analogWrite(R_PWM, 0);
+    delay(500);
+    //값 출력
+    Serial.println("Go Backward");
+    Serial.print("Left sensor: ");
+    Serial.println(dis1);
+    Serial.print("Right sensor: ");
+    Serial.println(dis2);
+
+    //후진
+    digitalWrite(L_F, LOW);
+    digitalWrite(L_B, HIGH);
+    analogWrite(L_PWM, 100);
+    digitalWrite(R_F, LOW);
+    digitalWrite(R_B, HIGH);
+    analogWrite(R_PWM, 100);
+    delay(700);
+    //정지
+    analogWrite(L_PWM, 0);
+    analogWrite(R_PWM, 0);
+    delay(500);
+
+    //좌회전
+    digitalWrite(L_F, HIGH);
+    digitalWrite(L_B, LOW);
+    analogWrite(L_PWM, 100);
+    digitalWrite(R_F, LOW);
+    digitalWrite(R_B, HIGH);
+    analogWrite(R_PWM, 100);
+    delay(800);
+
+
+  }
+  delay(50);
+}
